@@ -20,4 +20,11 @@ resource "aws_lambda_function" "text_to_speech_lambda" {
   timeout       = 900
   filename      = data.archive_file.text_to_speech_lambda_zip.output_path
   role          = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = {
+      voice_id      = var.polly_voice_id
+      language_code = var.polly_language_code
+    }
+  }
 }

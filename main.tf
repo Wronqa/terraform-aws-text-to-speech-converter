@@ -1,3 +1,4 @@
+
 module "api_gateway" {
   source                = "./modules/aws-api-gateway"
   region                = var.region
@@ -6,6 +7,8 @@ module "api_gateway" {
 }
 
 module "lambda" {
-  source      = "./modules/aws-lambda"
-  lambda_name = var.lambda_name
+  source              = "./modules/aws-lambda"
+  lambda_name         = var.lambda_name
+  polly_voice_id      = var.polly_voice_id
+  polly_language_code = var.polly_language_code
 }
