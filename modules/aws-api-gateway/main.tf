@@ -1,8 +1,14 @@
 resource "aws_api_gateway_rest_api" "aws_gateway_rest_api" {
-  name        = "aws_gateway_rest_api"
-  description = "API for pass request body to lambda"
-
+  name               = var.api_gateway_name
+  description        = "API for pass request body to lambda"
   binary_media_types = ["audio/mpeg"]
+}
+
+resource "aws_api_gateway_request_validator" "aws_gateway_body_validator" {
+  name                        = "body_validator"
+  rest_api_id                 = aws_api_gateway_rest_api.aws_gateway_rest_api.id
+  validate_request_body       = true
+  validate_request_parameters = false
 }
 
 resource "aws_api_gateway_resource" "path_name" {
@@ -12,11 +18,12 @@ resource "aws_api_gateway_resource" "path_name" {
 }
 
 resource "aws_api_gateway_method" "post_method" {
-  depends_on    = [aws_api_gateway_model.text_model]
-  rest_api_id   = aws_api_gateway_rest_api.aws_gateway_rest_api.id
-  http_method   = "POST"
-  resource_id   = aws_api_gateway_resource.path_name.id
-  authorization = "NONE"
+  depends_on           = [aws_api_gateway_model.text_model]
+  rest_api_id          = aws_api_gateway_rest_api.aws_gateway_rest_api.id
+  http_method          = "POST"
+  resource_id          = aws_api_gateway_resource.path_name.id
+  authorization        = "NONE"
+  request_validator_id = aws_api_gateway_request_validator.aws_gateway_body_validator.id
 
   request_models = {
     "application/json" = "Text"
@@ -29,22 +36,9 @@ resource "aws_api_gateway_integration" "post_intergration" {
   http_method = aws_api_gateway_method.post_method.http_method
 
   integration_http_method = "POST"
-
-  type = "AWS"
-
-  uri = var.text_to_speech_lambda.invoke_arn
-
-  credentials = aws_iam_role.api_gateway_role.arn
-}
-
-resource "aws_lambda_permission" "apigw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = var.text_to_speech_lambda.name
-  principal     = "apigateway.amazonaws.com"
-
-  # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  #source_arn = "arn:aws:execute-api:${var.myregion}:${var.accountId}:${aws_api_gateway_rest_api.api.id}/*/${aws_api_gateway_method.method.http_method}${aws_api_gateway_resource.resource.path}"
+  type                    = "AWS"
+  uri                     = var.text_to_speech_lambda.invoke_arn
+  credentials             = aws_iam_role.api_gateway_role.arn
 }
 
 resource "aws_api_gateway_deployment" "rest_api_deployment" {
@@ -53,7 +47,6 @@ resource "aws_api_gateway_deployment" "rest_api_deployment" {
 }
 
 resource "aws_api_gateway_stage" "rest_api_deployment_stage" {
-
   deployment_id = aws_api_gateway_deployment.rest_api_deployment.id
   rest_api_id   = aws_api_gateway_rest_api.aws_gateway_rest_api.id
   stage_name    = "v1"

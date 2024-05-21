@@ -5,3 +5,4 @@ output "text_to_speech_lambda" {
   }
   description = "Invoke ARN and name of text to speech lambda"
 }
+

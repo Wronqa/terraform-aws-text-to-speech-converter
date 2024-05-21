@@ -32,5 +32,12 @@ variable "region" {
   }
 }
 
+variable "api_gateway_name" {
+  description = "Name of text to speech gateway"
+}
+variable "lambda_name" {
+  description = "Name of text to speech lambda"
+}
+
 
 

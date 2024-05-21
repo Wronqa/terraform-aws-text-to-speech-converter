@@ -13,7 +13,7 @@ data "archive_file" "text_to_speech_lambda_zip" {
 }
 
 resource "aws_lambda_function" "text_to_speech_lambda" {
-  function_name = "text_to_speech"
+  function_name = var.lambda_name
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.12"
   memory_size   = 1024

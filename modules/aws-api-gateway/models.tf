@@ -1,3 +1,7 @@
+locals {
+  text_request_model_path = file("${path.module}/models/text-request.model.json")
+}
+
 resource "aws_api_gateway_model" "audio_mpeg_model" {
   rest_api_id  = aws_api_gateway_rest_api.aws_gateway_rest_api.id
   name         = "AudioMPEG"
@@ -13,15 +17,5 @@ resource "aws_api_gateway_model" "text_model" {
   name         = "Text"
   description  = "API model for text request"
   content_type = "application/json"
-  schema = jsonencode({
-    "$schema" : "http://json-schema.org/draft-04/schema#",
-    "title" : "TextToSpeechModel",
-    "type" : "object",
-    "required" : ["text"],
-    "properties" : {
-      "text" : {
-        "type" : "string"
-      }
-    }
-  })
+  schema       = local.text_request_model_path
 }
